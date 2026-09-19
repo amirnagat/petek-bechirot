@@ -1046,7 +1046,7 @@ var AppBundle = (() => {
       padding: "16px 20px",
       marginBottom: 14,
       border: i === 0 ? "3px solid #FFD60A" : "3px solid transparent"
-    } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 30, fontWeight: 900, color: "#111827", minWidth: 74 } }, m.pct, "%"), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, fontSize: 21, fontWeight: 800, color: "#111827" } }, m.party.name.split(" (")[0]), /* @__PURE__ */ React.createElement(Ballot, { letters: m.party.letters, color: m.party.color, size: 54 }))), /* @__PURE__ */ React.createElement("p", { style: { color: "#C7D2FE", fontSize: 14, margin: "24px 0 0", textAlign: "center" } }, "claude.ai/artifact/ALAbGLXZMW4dje7zpHmfQv"));
+    } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 30, fontWeight: 900, color: "#111827", minWidth: 74 } }, m.pct, "%"), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, fontSize: 21, fontWeight: 800, color: "#111827" } }, m.party.name.split(" (")[0]), /* @__PURE__ */ React.createElement(Ballot, { letters: m.party.letters, color: m.party.color, size: 54 }))), /* @__PURE__ */ React.createElement("p", { style: { color: "#C7D2FE", fontSize: 14, margin: "24px 0 0", textAlign: "center" } }, "petek-bechirot.vercel.app"));
   }
   function PartyLogo({ party, size = 84, kind = "party" }) {
     const [failed, setFailed] = (0, import_react.useState)(false);
@@ -1307,6 +1307,16 @@ var AppBundle = (() => {
         if (downloads) {
           await downloads.save({ filename: "patak-results.png", data: blob });
           setShareToast("\u{1F4E5} \u05D4\u05EA\u05DE\u05D5\u05E0\u05D4 \u05E0\u05E9\u05DE\u05E8\u05D4 \u2014 \u05D0\u05E4\u05E9\u05E8 \u05DC\u05E6\u05E8\u05E3 \u05D0\u05D5\u05EA\u05D4 \u05D9\u05D3\u05E0\u05D9\u05EA \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4");
+        } else if (!window.claude) {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "patak-results.png";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 3e3);
+          setShareToast("\u{1F4E5} \u05D4\u05EA\u05DE\u05D5\u05E0\u05D4 \u05D4\u05D5\u05E8\u05D3\u05D4 \u2014 \u05D0\u05E4\u05E9\u05E8 \u05DC\u05E6\u05E8\u05E3 \u05D0\u05D5\u05EA\u05D4 \u05D9\u05D3\u05E0\u05D9\u05EA \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4");
         } else {
           setShareToast("\u26A0\uFE0F \u05E9\u05DE\u05D9\u05E8\u05EA \u05EA\u05DE\u05D5\u05E0\u05D4 \u05DC\u05D0 \u05D6\u05DE\u05D9\u05E0\u05D4 \u05DB\u05D0\u05DF \u2014 \u05E0\u05E1\u05D5 \u05E9\u05D9\u05EA\u05D5\u05E3 \u05D8\u05E7\u05E1\u05D8 \u05E8\u05D2\u05D9\u05DC");
         }
@@ -1324,7 +1334,7 @@ var AppBundle = (() => {
     };
     const buildShareText = () => {
       const top = visibleMatches.slice(0, 3);
-      const link = "https://claude.ai/artifact/ALAbGLXZMW4dje7zpHmfQv";
+      const link = typeof window !== "undefined" && window.location && window.location.origin || "https://petek-bechirot.vercel.app";
       return `\u{1F5F3}\uFE0F \u05D4\u05D4\u05EA\u05D0\u05DE\u05D5\u05EA \u05E9\u05DC\u05D9 \u05DC\u05D1\u05D7\u05D9\u05E8\u05D5\u05EA:
 ${top.map((m, i) => `${["\u{1F947}", "\u{1F948}", "\u{1F949}"][i]} ${m.party.name} \u2014 ${m.pct}%`).join("\n")}
 \u05D1\u05D5\u05D0\u05D5 \u05DC\u05D2\u05DC\u05D5\u05EA \u05DB\u05DE\u05D4 \u05D0\u05EA\u05DD \u05DE\u05EA\u05D0\u05D9\u05DE\u05D9\u05DD \u{1F447}
