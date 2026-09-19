@@ -1028,11 +1028,14 @@ var AppBundle = (() => {
   function ShareCard({ innerRef, matches }) {
     const top = matches.slice(0, 3);
     return /* @__PURE__ */ React.createElement("div", { ref: innerRef, style: {
-      position: "fixed",
+      position: "absolute",
       top: 0,
-      left: -9999,
+      left: 0,
       width: 640,
       direction: "rtl",
+      opacity: 0,
+      zIndex: -1,
+      pointerEvents: "none",
       fontFamily: font,
       background: "linear-gradient(160deg, #111827 0%, #1B4DE4 100%)",
       padding: 40,
@@ -1292,21 +1295,14 @@ var AppBundle = (() => {
           blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
           if (!blob) throw new Error("no blob");
         }
-        const file = new File([blob], "patak-results.png", { type: "image/png" });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          const shareText = buildShareText();
-          try {
-            await navigator.clipboard.writeText(shareText);
-          } catch {
-          }
-          setShareToast("\u{1F4CB} \u05D4\u05D8\u05E7\u05E1\u05D8 \u05D4\u05D5\u05E2\u05EA\u05E7 \u05DC\u05DC\u05D5\u05D7 \u2014 \u05D4\u05D3\u05D1\u05D9\u05E7\u05D5 \u05D0\u05D5\u05EA\u05D5 \u05D1\u05EA\u05D9\u05D1\u05EA \u05D4\u05D4\u05D5\u05D3\u05E2\u05D4 \u05D0\u05D7\u05E8\u05D9 \u05E9\u05D4\u05EA\u05DE\u05D5\u05E0\u05D4 \u05EA\u05E6\u05D5\u05E8\u05E3");
-          await navigator.share({ files: [file], title: "\u05E4\u05EA\u05E7 \u2014 \u05D4\u05D4\u05EA\u05D0\u05DE\u05D5\u05EA \u05E9\u05DC\u05D9 \u05DC\u05D1\u05D7\u05D9\u05E8\u05D5\u05EA", text: shareText });
-          return;
+        const shareText = buildShareText();
+        try {
+          await navigator.clipboard.writeText(shareText);
+        } catch {
         }
         const downloads = await window.claude?.use?.("downloads");
         if (downloads) {
           await downloads.save({ filename: "patak-results.png", data: blob });
-          setShareToast("\u{1F4E5} \u05D4\u05EA\u05DE\u05D5\u05E0\u05D4 \u05E0\u05E9\u05DE\u05E8\u05D4 \u2014 \u05D0\u05E4\u05E9\u05E8 \u05DC\u05E6\u05E8\u05E3 \u05D0\u05D5\u05EA\u05D4 \u05D9\u05D3\u05E0\u05D9\u05EA \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4");
         } else if (!window.claude) {
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
@@ -1316,10 +1312,11 @@ var AppBundle = (() => {
           a.click();
           document.body.removeChild(a);
           setTimeout(() => URL.revokeObjectURL(url), 3e3);
-          setShareToast("\u{1F4E5} \u05D4\u05EA\u05DE\u05D5\u05E0\u05D4 \u05D4\u05D5\u05E8\u05D3\u05D4 \u2014 \u05D0\u05E4\u05E9\u05E8 \u05DC\u05E6\u05E8\u05E3 \u05D0\u05D5\u05EA\u05D4 \u05D9\u05D3\u05E0\u05D9\u05EA \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4");
         } else {
-          setShareToast("\u26A0\uFE0F \u05E9\u05DE\u05D9\u05E8\u05EA \u05EA\u05DE\u05D5\u05E0\u05D4 \u05DC\u05D0 \u05D6\u05DE\u05D9\u05E0\u05D4 \u05DB\u05D0\u05DF \u2014 \u05E0\u05E1\u05D5 \u05E9\u05D9\u05EA\u05D5\u05E3 \u05D8\u05E7\u05E1\u05D8 \u05E8\u05D2\u05D9\u05DC");
+          setShareToast("\u26A0\uFE0F \u05E9\u05DE\u05D9\u05E8\u05EA \u05EA\u05DE\u05D5\u05E0\u05D4 \u05DC\u05D0 \u05D6\u05DE\u05D9\u05E0\u05D4 \u05DB\u05D0\u05DF");
+          return;
         }
+        setShareToast("\u{1F4E5} \u05E0\u05E9\u05DE\u05E8! \u05D2\u05DD \u05D4\u05D8\u05E7\u05E1\u05D8 \u05D4\u05D5\u05E2\u05EA\u05E7 \u05DC\u05DC\u05D5\u05D7 \u2014 \u05E4\u05EA\u05D7\u05D5 \u05D0\u05EA \u05D4\u05D2\u05DC\u05E8\u05D9\u05D4 \u05D5\u05E9\u05EA\u05E4\u05D5 \u05D0\u05EA \u05D4\u05EA\u05DE\u05D5\u05E0\u05D4 \u05DC\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4");
       } catch (err) {
         if (err && err.name === "AbortError") {
           setShareToast("");
@@ -1628,7 +1625,7 @@ ${link}`;
         style: { width: 20, height: 20, flexShrink: 0 },
         onChange: (e) => setWeights((w) => ({ ...w, [q.id]: e.target.checked }))
       }
-    ), "\u05D4\u05E0\u05D5\u05E9\u05D0 \u05D4\u05D6\u05D4 \u05D7\u05E9\u05D5\u05D1 \u05DC\u05D9 \u05D1\u05DE\u05D9\u05D5\u05D7\u05D3 (\u05DE\u05E9\u05E7\u05DC \u05DB\u05E4\u05D5\u05DC \u05D1\u05D7\u05D9\u05E9\u05D5\u05D1)"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", marginTop: 18 } }, /* @__PURE__ */ React.createElement("button", { style: S.navBtn(false), disabled: qIndex === 0, onClick: goBack }, "\u2192 \u05D7\u05D6\u05E8\u05D4"), /* @__PURE__ */ React.createElement("button", { style: S.navBtn(false), onClick: advanceManual }, "\u05D4\u05D1\u05D0 \u2190")))), screen === "results" && /* @__PURE__ */ React.createElement("div", { style: { paddingTop: 20 } }, /* @__PURE__ */ React.createElement("h1", { style: { fontSize: "2.125rem", fontWeight: 900 } }, "\u05D4\u05D4\u05EA\u05D0\u05DE\u05D5\u05EA \u05E9\u05DC\u05DA"), answeredCount === 0 ? /* @__PURE__ */ React.createElement("div", { style: { ...S.card, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20, flexWrap: "wrap" } }, /* @__PURE__ */ React.createElement("span", null, "\u05E2\u05D5\u05D3 \u05DC\u05D0 \u05E2\u05E0\u05D9\u05EA \u05E2\u05DC \u05D0\u05E3 \u05E9\u05D0\u05DC\u05D4."), /* @__PURE__ */ React.createElement("button", { style: { ...S.primary, padding: "8px 18px", fontSize: "0.9375rem" }, onClick: () => setScreen("quiz") }, "\u05DC\u05E9\u05D0\u05DC\u05D5\u05DF")) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("p", { style: S.small, "aria-live": "polite" }, "\u05DE\u05D1\u05D5\u05E1\u05E1 \u05E2\u05DC ", answeredCount, " \u05EA\u05E9\u05D5\u05D1\u05D5\u05EA. \u05DE\u05E4\u05DC\u05D2\u05D5\u05EA \u05D1\u05D4\u05E7\u05DE\u05D4 \u05E9\u05D8\u05E8\u05DD \u05E4\u05E8\u05E1\u05DE\u05D5 \u05E2\u05DE\u05D3\u05D5\u05EA \u05D0\u05D9\u05E0\u05DF \u05DE\u05D3\u05D5\u05E8\u05D2\u05D5\u05EA.", " ", /* @__PURE__ */ React.createElement("button", { onClick: () => setScreen("methodology"), style: { background: "none", border: "none", color: "#1B4DE4", textDecoration: "underline", cursor: "pointer", fontFamily: font, fontSize: "0.875rem", padding: 0 } }, "\u05D0\u05D9\u05DA \u05D6\u05D4 \u05DE\u05D7\u05D5\u05E9\u05D1?")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 6 } }, /* @__PURE__ */ React.createElement("button", { style: { ...S.primary, fontSize: "0.9375rem", padding: "10px 18px" }, onClick: shareResult }, "\u{1F4E4} \u05E9\u05D9\u05EA\u05D5\u05E3 \u05D4\u05EA\u05D5\u05E6\u05D0\u05D4"), /* @__PURE__ */ React.createElement("button", { style: { ...S.primary, background: "#25D366", color: "#fff", fontSize: "0.9375rem", padding: "10px 18px" }, onClick: shareImageResult }, "\u{1F4F2} \u05E9\u05D9\u05EA\u05D5\u05E3 \u05DB\u05EA\u05DE\u05D5\u05E0\u05D4 \u05DC\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4"), /* @__PURE__ */ React.createElement(
+    ), "\u05D4\u05E0\u05D5\u05E9\u05D0 \u05D4\u05D6\u05D4 \u05D7\u05E9\u05D5\u05D1 \u05DC\u05D9 \u05D1\u05DE\u05D9\u05D5\u05D7\u05D3 (\u05DE\u05E9\u05E7\u05DC \u05DB\u05E4\u05D5\u05DC \u05D1\u05D7\u05D9\u05E9\u05D5\u05D1)"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", marginTop: 18 } }, /* @__PURE__ */ React.createElement("button", { style: S.navBtn(false), disabled: qIndex === 0, onClick: goBack }, "\u2192 \u05D7\u05D6\u05E8\u05D4"), /* @__PURE__ */ React.createElement("button", { style: S.navBtn(false), onClick: advanceManual }, "\u05D4\u05D1\u05D0 \u2190")))), screen === "results" && /* @__PURE__ */ React.createElement("div", { style: { paddingTop: 20 } }, /* @__PURE__ */ React.createElement("h1", { style: { fontSize: "2.125rem", fontWeight: 900 } }, "\u05D4\u05D4\u05EA\u05D0\u05DE\u05D5\u05EA \u05E9\u05DC\u05DA"), answeredCount === 0 ? /* @__PURE__ */ React.createElement("div", { style: { ...S.card, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20, flexWrap: "wrap" } }, /* @__PURE__ */ React.createElement("span", null, "\u05E2\u05D5\u05D3 \u05DC\u05D0 \u05E2\u05E0\u05D9\u05EA \u05E2\u05DC \u05D0\u05E3 \u05E9\u05D0\u05DC\u05D4."), /* @__PURE__ */ React.createElement("button", { style: { ...S.primary, padding: "8px 18px", fontSize: "0.9375rem" }, onClick: () => setScreen("quiz") }, "\u05DC\u05E9\u05D0\u05DC\u05D5\u05DF")) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("p", { style: S.small, "aria-live": "polite" }, "\u05DE\u05D1\u05D5\u05E1\u05E1 \u05E2\u05DC ", answeredCount, " \u05EA\u05E9\u05D5\u05D1\u05D5\u05EA. \u05DE\u05E4\u05DC\u05D2\u05D5\u05EA \u05D1\u05D4\u05E7\u05DE\u05D4 \u05E9\u05D8\u05E8\u05DD \u05E4\u05E8\u05E1\u05DE\u05D5 \u05E2\u05DE\u05D3\u05D5\u05EA \u05D0\u05D9\u05E0\u05DF \u05DE\u05D3\u05D5\u05E8\u05D2\u05D5\u05EA.", " ", /* @__PURE__ */ React.createElement("button", { onClick: () => setScreen("methodology"), style: { background: "none", border: "none", color: "#1B4DE4", textDecoration: "underline", cursor: "pointer", fontFamily: font, fontSize: "0.875rem", padding: 0 } }, "\u05D0\u05D9\u05DA \u05D6\u05D4 \u05DE\u05D7\u05D5\u05E9\u05D1?")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 6 } }, /* @__PURE__ */ React.createElement("button", { style: { ...S.primary, fontSize: "0.9375rem", padding: "10px 18px" }, onClick: shareResult }, "\u{1F4E4} \u05E9\u05D9\u05EA\u05D5\u05E3 \u05D4\u05EA\u05D5\u05E6\u05D0\u05D4"), /* @__PURE__ */ React.createElement("button", { style: { ...S.primary, background: "#25D366", color: "#fff", fontSize: "0.9375rem", padding: "10px 18px" }, onClick: shareImageResult }, "\u{1F4F2} \u05E9\u05DE\u05D9\u05E8\u05EA \u05EA\u05DE\u05D5\u05E0\u05D4 \u05DC\u05E9\u05D9\u05EA\u05D5\u05E3 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4"), /* @__PURE__ */ React.createElement(
       "button",
       {
         style: { ...S.primary, background: "#fff", fontSize: "0.9375rem", padding: "10px 18px" },
