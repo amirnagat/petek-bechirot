@@ -1091,6 +1091,47 @@ var AppBundle = (() => {
     const people = joined.split(/\s(?=\d+\.\s)/).map((s) => s.trim()).filter(Boolean).map((s) => s.replace(/^\d+\.\s*/, ""));
     return { people, notes };
   }
+  function ReportError({ partyName }) {
+    const [open, setOpen] = (0, import_react.useState)(false);
+    const [copied, setCopied] = (0, import_react.useState)(false);
+    const subject = "\u05D8\u05E2\u05D5\u05EA \u05D1\u05DE\u05D9\u05D3\u05E2 \u05E2\u05DC " + partyName;
+    const bodyText = "\u05E9\u05DC\u05D5\u05DD, \u05E9\u05DE\u05EA\u05D9 \u05DC\u05D1 \u05DC\u05D8\u05E2\u05D5\u05EA \u05D1\u05E2\u05DE\u05D5\u05D3 \u05E9\u05DC " + partyName + ":\n\n";
+    const mailto = "mailto:" + CONTACT_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(bodyText);
+    const gmail = "https://mail.google.com/mail/?view=cm&fs=1&to=" + encodeURIComponent(CONTACT_EMAIL) + "&su=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(bodyText);
+    const copy = async () => {
+      let ok = false;
+      try {
+        await navigator.clipboard.writeText(CONTACT_EMAIL);
+        ok = true;
+      } catch (e) {
+        try {
+          const ta = document.createElement("textarea");
+          ta.value = CONTACT_EMAIL;
+          ta.setAttribute("readonly", "");
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          ok = document.execCommand("copy");
+          document.body.removeChild(ta);
+        } catch (e2) {
+        }
+      }
+      setCopied(ok ? "ok" : "fail");
+      setTimeout(() => setCopied(false), 3000);
+    };
+    const btn = { ...S.navBtn(false), fontSize: "0.875rem", padding: "8px 14px", textDecoration: "none", display: "inline-block", cursor: "pointer" };
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        type: "button",
+        "aria-expanded": open,
+        onClick: () => setOpen((v) => !v),
+        style: { background: "none", border: "none", padding: 4, color: "#57606A", fontSize: "0.875rem", textDecoration: "underline", cursor: "pointer", fontFamily: "inherit" }
+      },
+      "\u{1F6A9} \u05E8\u05D0\u05D9\u05EA\u05DD \u05DB\u05D0\u05DF \u05DE\u05E9\u05D4\u05D5 \u05E9\u05D2\u05D5\u05D9 \u05D0\u05D5 \u05DC\u05D0 \u05DE\u05E2\u05D5\u05D3\u05DB\u05DF? \u05D3\u05D5\u05D5\u05D7\u05D5 \u05DC\u05E0\u05D5"
+    ), open && /* @__PURE__ */ React.createElement("div", { role: "region", "aria-label": "\u05D3\u05D9\u05D5\u05D5\u05D7 \u05E2\u05DC \u05D8\u05E2\u05D5\u05EA", style: { marginTop: 10, padding: 14, border: "2px solid #111827", borderRadius: 12, background: "#FFFFFF", textAlign: "center" } }, /* @__PURE__ */ React.createElement("p", { style: { margin: "0 0 8px", fontSize: "0.9375rem", lineHeight: 1.6 } }, "\u05DB\u05EA\u05D1\u05D5 \u05DC\u05E0\u05D5 \u05E2\u05DC \u05D4\u05D8\u05E2\u05D5\u05EA \u05E9\u05DE\u05E6\u05D0\u05EA\u05DD \u2014 \u05E0\u05E9\u05DE\u05D7 \u05DC\u05EA\u05D9\u05E7\u05D5\u05DF. \u05D0\u05E4\u05E9\u05E8 \u05DC\u05E9\u05DC\u05D5\u05D7 \u05D1\u05DE\u05D9\u05D9\u05DC \u05DC\u05DB\u05EA\u05D5\u05D1\u05EA:"), /* @__PURE__ */ React.createElement("p", { dir: "ltr", style: { margin: "0 0 12px", fontWeight: 800, fontSize: "1rem", userSelect: "all", wordBreak: "break-all" } }, CONTACT_EMAIL), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" } }, /* @__PURE__ */ React.createElement("a", { href: mailto, style: btn }, "\u2709\uFE0F \u05E4\u05EA\u05D9\u05D7\u05D4 \u05D1\u05D0\u05E4\u05DC\u05D9\u05E7\u05E6\u05D9\u05D9\u05EA \u05D4\u05DE\u05D9\u05D9\u05DC"), /* @__PURE__ */ React.createElement("a", { href: gmail, target: "_blank", rel: "noopener noreferrer", style: btn }, "Gmail"), /* @__PURE__ */ React.createElement("button", { type: "button", onClick: copy, style: btn }, "\u{1F4CB} \u05D4\u05E2\u05EA\u05E7\u05EA \u05D4\u05DB\u05EA\u05D5\u05D1\u05EA")), copied && /* @__PURE__ */ React.createElement("p", { role: "status", style: { margin: "10px 0 0", fontWeight: 700, fontSize: "0.875rem" } }, copied === "ok" ? "\u05D4\u05DB\u05EA\u05D5\u05D1\u05EA \u05D4\u05D5\u05E2\u05EA\u05E7\u05D4 \u2713" : "\u05DC\u05D0 \u05D4\u05E6\u05DC\u05D7\u05E0\u05D5 \u05DC\u05D4\u05E2\u05EA\u05D9\u05E7 \u2014 \u05D0\u05E4\u05E9\u05E8 \u05DC\u05DC\u05D7\u05D5\u05E5 \u05D0\u05E8\u05D5\u05DB\u05D5\u05EA \u05E2\u05DC \u05D4\u05DB\u05EA\u05D5\u05D1\u05EA \u05D5\u05DC\u05D4\u05E2\u05EA\u05D9\u05E7 \u05D9\u05D3\u05E0\u05D9\u05EA.")));
+  }
   function CandidateList({ candidates, initialCount = 10, maxExpanded = 25 }) {
     const [open, setOpen] = (0, import_react.useState)(false);
     const { people, notes } = (0, import_react.useMemo)(() => splitCandidates(candidates), [candidates]);
@@ -1977,16 +2018,7 @@ ${link}`;
         }
       },
       selectedParty.platformUrl ? "\u{1F4C4} \u05DC\u05DE\u05E6\u05E2 \u05D4\u05E8\u05E9\u05DE\u05D9 \u05D4\u05DE\u05DC\u05D0" : "\u{1F50E} \u05DC\u05D7\u05D9\u05E4\u05D5\u05E9 \u05D4\u05DE\u05E6\u05E2 \u05D4\u05E8\u05E9\u05DE\u05D9 \u05D1\u05E8\u05E9\u05EA"
-    )), /* @__PURE__ */ React.createElement("h2", { style: { color: selectedParty.color } }, "\u05D4\u05E8\u05E9\u05D9\u05DE\u05D4 \u05DC\u05DB\u05E0\u05E1\u05EA"), /* @__PURE__ */ React.createElement(CandidateList, { key: selectedParty.id, candidates: selectedParty.candidates }), /* @__PURE__ */ React.createElement("p", { style: { ...S.small, marginTop: 16, textAlign: "center" } }, /* @__PURE__ */ React.createElement(
-      "a",
-      {
-        href: `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("\u05D8\u05E2\u05D5\u05EA \u05D1\u05DE\u05D9\u05D3\u05E2 \u05E2\u05DC " + selectedParty.name.split(" (")[0])}&body=${encodeURIComponent("\u05E9\u05DC\u05D5\u05DD, \u05E9\u05DE\u05EA\u05D9 \u05DC\u05D1 \u05DC\u05D8\u05E2\u05D5\u05EA \u05D1\u05E2\u05DE\u05D5\u05D3 \u05D4\u05D1\u05D0:\n\n")}`,
-        target: "_blank",
-        rel: "noopener noreferrer",
-        style: { color: "#57606A" }
-      },
-      "\u{1F6A9} \u05E8\u05D0\u05D9\u05EA\u05DD \u05DB\u05D0\u05DF \u05DE\u05E9\u05D4\u05D5 \u05E9\u05D2\u05D5\u05D9 \u05D0\u05D5 \u05DC\u05D0 \u05DE\u05E2\u05D5\u05D3\u05DB\u05DF? \u05D3\u05D5\u05D5\u05D7\u05D5 \u05DC\u05E0\u05D5"
-    ))), /* @__PURE__ */ React.createElement(LogoCreditNote, null), /* @__PURE__ */ React.createElement(Disclaimer, null)), /* @__PURE__ */ React.createElement("footer", { style: {
+    )), /* @__PURE__ */ React.createElement("h2", { style: { color: selectedParty.color } }, "\u05D4\u05E8\u05E9\u05D9\u05DE\u05D4 \u05DC\u05DB\u05E0\u05E1\u05EA"), /* @__PURE__ */ React.createElement(CandidateList, { key: selectedParty.id, candidates: selectedParty.candidates }), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 16, textAlign: "center" } }, /* @__PURE__ */ React.createElement(ReportError, { partyName: selectedParty.name.split(" (")[0] }))), /* @__PURE__ */ React.createElement(LogoCreditNote, null), /* @__PURE__ */ React.createElement(Disclaimer, null)), /* @__PURE__ */ React.createElement("footer", { style: {
       marginTop: 50,
       paddingTop: 20,
       borderTop: "2px dashed #D1CBB8",
